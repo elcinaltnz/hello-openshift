@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OpenShift Hello App</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f0f1a;
+      color: #f0f0f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .card {
+      background: #1b1b2f;
+      border: 1px solid #cc0000;
+      border-radius: 12px;
+      padding: 3rem 4rem;
+      max-width: 700px;
+      width: 100%;
+      text-align: center;
+    }
+    .logo { font-size: 3.5rem; margin-bottom: 0.5rem; }
+    h1 { font-size: 2rem; color: #cc0000; margin-bottom: 0.5rem; }
+    .subtitle { color: #aaa; margin-bottom: 2rem; }
+    .badges { display: flex; justify-content: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 2rem; }
+    .badge { background: #cc0000; color: white; border-radius: 20px; padding: 0.3rem 1rem; font-size: 0.8rem; font-weight: bold; }
+    .badge.dark { background: #333; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; }
+    .info-box { background: #0f0f1a; border: 1px solid #333; border-radius: 8px; padding: 1rem; }
+    .info-box .label { font-size: 0.75rem; color: #888; margin-bottom: 0.3rem; text-transform: uppercase; }
+    .info-box .value { font-size: 1rem; color: #00ff88; font-family: monospace; }
+    .btn { background: #cc0000; color: white; border: none; border-radius: 8px; padding: 0.75rem 2rem; font-size: 1rem; cursor: pointer; margin: 0.3rem; }
+    .btn:hover { background: #aa0000; }
+    .btn.outline { background: transparent; border: 1px solid #cc0000; color: #cc0000; }
+    footer { margin-top: 2rem; font-size: 0.8rem; color: #555; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">🚀</div>
+    <h1>OpenShift Hello App</h1>
+    <p class="subtitle">Your first Node.js application running on Red Hat OpenShift</p>
+    <div class="badges">
+      <span class="badge">Node.js</span>
+      <span class="badge">Express</span>
+      <span class="badge dark">S2I Build</span>
+      <span class="badge dark">OpenShift</span>
+    </div>
+    <div class="info-grid">
+      <div class="info-box">
+        <div class="label">Hostname (Pod Name)</div>
+        <div class="value" id="hostname">loading...</div>
+      </div>
+      <div class="info-box">
+        <div class="label">Environment</div>
+        <div class="value" id="env">loading...</div>
+      </div>
+      <div class="info-box">
+        <div class="label">App Version</div>
+        <div class="value" id="version">loading...</div>
+      </div>
+      <div class="info-box">
+        <div class="label">Health Status</div>
+        <div class="value" id="health">loading...</div>
+      </div>
+    </div>
+    <div>
+      <button class="btn" onclick="loadInfo()">🔄 Refresh Info</button>
+      <button class="btn outline" onclick="checkHealth()">❤️ Health Check</button>
+    </div>
+  </div>
+  <footer>Deployed with Red Hat OpenShift • Source-to-Image (S2I) Build</footer>
+
+  <script>
+    async function loadInfo() {
+      try {
+        const res = await fetch('/api/info');
+        const data = await res.json();
+        document.getElementById('hostname').textContent = data.hostname;
+        document.getElementById('env').textContent = data.environment;
+        document.getElementById('version').textContent = data.version;
+      } catch(e) {
+        document.getElementById('hostname').textContent = 'error';
+      }
+    }
+    async function checkHealth() {
+      try {
+        const res = await fetch('/health');
+        const data = await res.json();
+        document.getElementById('health').textContent = data.status;
+      } catch(e) {
+        document.getElementById('health').textContent = 'ERROR';
+      }
+    }
+    loadInfo();
+    checkHealth();
+  </script>
+</body>
+</html>
