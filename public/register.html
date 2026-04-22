@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kayıt Ol — TaskFlow</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #0f0f1a; color: #f0f0f0; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+    .card { background: #1b1b2f; border: 1px solid #cc0000; border-radius: 12px; padding: 2.5rem; max-width: 420px; width: 100%; }
+    h2 { color: #cc0000; margin-bottom: 0.4rem; font-size: 1.8rem; }
+    p.sub { color: #aaa; margin-bottom: 2rem; font-size: 0.9rem; }
+    .field { margin-bottom: 1.2rem; }
+    label { display: block; font-size: 0.85rem; color: #aaa; margin-bottom: 0.4rem; }
+    input, select { width: 100%; background: #0f0f1a; border: 1px solid #333; border-radius: 8px; padding: 0.75rem 1rem; color: #f0f0f0; font-size: 1rem; outline: none; transition: border 0.2s; }
+    input:focus, select:focus { border-color: #cc0000; }
+    select option { background: #1b1b2f; }
+    .btn { width: 100%; background: #cc0000; color: white; border: none; border-radius: 8px; padding: 0.85rem; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 0.5rem; }
+    .btn:hover { background: #aa0000; }
+    .msg { margin-top: 1rem; padding: 0.75rem; border-radius: 8px; font-size: 0.9rem; display: none; }
+    .msg.error { background: #2a0000; border: 1px solid #cc0000; color: #ff6666; display: block; }
+    .msg.success { background: #002a00; border: 1px solid #00cc00; color: #66ff66; display: block; }
+    .link { text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: #aaa; }
+    .link a { color: #cc0000; text-decoration: none; }
+    .role-info { font-size: 0.75rem; color: #666; margin-top: 0.3rem; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>📋 Kayıt Ol</h2>
+    <p class="sub">TaskFlow hesabı oluştur</p>
+    <div class="field"><label>Kullanıcı Adı</label><input type="text" id="username" placeholder="ahmetyilmaz"/></div>
+    <div class="field"><label>E-posta</label><input type="email" id="email" placeholder="ahmet@sirket.com"/></div>
+    <div class="field"><label>Şifre</label><input type="password" id="password" placeholder="••••••••"/></div>
+    <div class="field">
+      <label>Rol</label>
+      <select id="role">
+        <option value="member">👤 Üye — Kendi görevlerimi görürüm</option>
+        <option value="admin">👑 Admin — Tüm görevleri yönetirim</option>
+      </select>
+      <div class="role-info">Admin tüm görevleri görür ve silebilir. Üye sadece kendine atananları görür.</div>
+    </div>
+    <button class="btn" onclick="register()">Hesap Oluştur</button>
+    <div class="msg" id="msg"></div>
+    <div class="link">Hesabın var mı? <a href="/login">Giriş Yap</a></div>
+  </div>
+  <script>
+    async function register() {
+      const username = document.getElementById('username').value;
+      const email    = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const role     = document.getElementById('role').value;
+      const msg      = document.getElementById('msg');
+      try {
+        const res  = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, email, password, role })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          msg.className = 'msg error';
+          msg.textContent = data.error;
+        } else {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('username', data.username);
+          localStorage.setItem('role', data.role);
+          msg.className = 'msg success';
+          msg.textContent = 'Hesap oluşturuldu! Yönlendiriliyor...';
+          setTimeout(() => window.location.href = '/dashboard', 1000);
+        }
+      } catch {
+        msg.className = 'msg error';
+        msg.textContent = 'Sunucu hatası.';
+      }
+    }
+  </script>
+</body>
+</html>
